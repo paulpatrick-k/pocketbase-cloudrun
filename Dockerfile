@@ -1,27 +1,11 @@
-FROM alpine:latest
+﻿FROM alpine:latest
+RUN apk add --no-cache ca-certificates
 
-ARG PB_VERSION=0.22.13
+ADD https://github.com/pocketbase/pocketbase/releases/download/v0.22.9/pocketbase_0.22.9_linux_amd64.zip /tmp/pb.zip
+RUN unzip /tmp/pb.zip -d /app/ && \
+    chmod +x /app/pocketbase && \
+    rm /tmp/pb.zip
 
-RUN apk add --no-cache \
-    unzip \
-    ca-certificates
-
-# download and unzip PocketBase
-ADD https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip /tmp/pb.zip
-RUN unzip /tmp/pb.zip -d /pb/
-
-# uncomment to copy the local pb_migrations dir into the image
-# COPY ./pb_migrations /cloud/storage/pb_migrations
-
-# uncomment to copy the local pb_hooks dir into the image
-# COPY ./pb_hooks /cloud/storage/pb_hooks
-
-# uncomment to copy the local pb_public dir into the image
-# COPY ./pb_public /cloud/storage/pb_public
-
-ENV HOST 0.0.0.0
-ENV PORT 8080
-
-# start PocketBase
 EXPOSE 8080
-CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080", "--dir=/cloud/storage/pb_data", "--publicDir=/cloud/storage/pb_public", "--hooksDir=/cloud/storage/pb_hooks"]
+
+CMD ["/app/pocketbase", "serve", "--http=0.0.0.0:8080", "--dir=/pb/pb_data"]
